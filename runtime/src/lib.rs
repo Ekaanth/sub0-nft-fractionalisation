@@ -429,8 +429,8 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Assets: pallet_assets,
 		Sudo: pallet_sudo,
-		Nfts: pallet_nfts::{Pallet, Call, Storage, Event<T>} = 52,
-		NftFractionalization: pallet_nft_fractionalization::{Pallet, Call, Storage, Event<T>} = 54,
+		Nfts: pallet_nfts,
+		NftFractionalization: pallet_nft_fractionalization,
 	}
 );
 
