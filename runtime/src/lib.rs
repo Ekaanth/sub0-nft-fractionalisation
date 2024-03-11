@@ -351,26 +351,30 @@ parameter_types! {
 
 impl pallet_nfts::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type CollectionId = u32;
-	type ItemId = u32;
-	type Currency = Balances;
-	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
-	type ForceOrigin = EnsureRoot<AccountId>;
+	type CollectionId = u32; // ID for collection of item
+	type ItemId = u32; // identify a unique item within a collection
+	type Currency = Balances; // paying for reserves.
+	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>; // creation is only allowed if the origin attempting it
+	type ForceOrigin = EnsureRoot<AccountId>; // forcibly create or destroy an item
 	type Locker = ();
-	type CollectionDeposit = NftsCollectionDeposit;
-	type ItemDeposit = NftsItemDeposit;
-	type MetadataDepositBase = NftsMetadataDepositBase;
-	type AttributeDepositBase = NftsAttributeDepositBase;
-	type DepositPerByte = NftsDepositPerByte;
-	type StringLimit = ConstU32<256>;
-	type KeyLimit = ConstU32<64>;
-	type ValueLimit = ConstU32<256>;
-	type ApprovalsLimit = ConstU32<20>;
-	type ItemAttributesApprovalsLimit = ConstU32<30>;
-	type MaxTips = ConstU32<10>;
-	type MaxDeadlineDuration = NftsMaxDeadlineDuration;
-	type MaxAttributesPerCall = ConstU32<10>;
-	type Features = NftsPalletFeatures;
+	
+	type CollectionDeposit = NftsCollectionDeposit; // funds that must be reserved for collection
+	type ItemDeposit = NftsItemDeposit; // funds that must be reserved for an item
+	type MetadataDepositBase = NftsMetadataDepositBase; // funds that must be reserved when adding metadata
+	type AttributeDepositBase = NftsAttributeDepositBase; //  funds that must be reserved when adding an attribute
+	type DepositPerByte = NftsDepositPerByte; // reserved for the number of bytes store in metadata
+	
+	type StringLimit = ConstU32<256>; // maximum length of data stored on-chain
+	type KeyLimit = ConstU32<64>; //  maximum length of an attribute key
+	type ValueLimit = ConstU32<256>; // maximum length of an attribute value
+	type ApprovalsLimit = ConstU32<20>; // maximum approvals an item could have
+	type ItemAttributesApprovalsLimit = ConstU32<30>; // maximum attributes approvals an item could have
+	type MaxTips = ConstU32<10>; // maximum number of tips a user could send.
+
+	type MaxDeadlineDuration = NftsMaxDeadlineDuration; // maximum duration in blocks for deadlines
+	type MaxAttributesPerCall = ConstU32<10>; // maximum number of attributes a user could set per call
+	type Features = NftsPalletFeatures; // Disables some of pallet's features
+	
 	type OffchainSignature = Signature;
 	type OffchainPublic = <Signature as Verify>::Signer;
 	type WeightInfo = ();
@@ -380,8 +384,8 @@ impl pallet_nfts::Config for Runtime {
 
 parameter_types! {
 	pub const NftFractionalizationPalletId: PalletId = PalletId(*b"fraction");
-	pub NewAssetSymbol: BoundedVec<u8, StringLimit> = (*b"FRAC").to_vec().try_into().unwrap();
-	pub NewAssetName: BoundedVec<u8, StringLimit> = (*b"Frac").to_vec().try_into().unwrap();
+	pub NewAssetSymbol: BoundedVec<u8, StringLimit> = (*b"PHYKEN-FRAC").to_vec().try_into().unwrap();
+	pub NewAssetName: BoundedVec<u8, StringLimit> = (*b"Phyken-Frac").to_vec().try_into().unwrap();
 	// TODO: remove in the next version of polkadot
 	pub const NftFractionalizationHoldReason: HoldReason = HoldReason::NftFractionalization;
 }
@@ -390,16 +394,16 @@ impl pallet_nft_fractionalization::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 	type Deposit = AssetDeposit;
 	type Currency = Balances;
-	type NftCollectionId = <Self as pallet_nfts::Config>::CollectionId;
-	type NftId = <Self as pallet_nfts::Config>::ItemId;
-	type AssetBalance = <Self as pallet_balances::Config>::Balance;
-	type AssetId = <Self as pallet_assets::Config>::AssetId;
-	type Assets = Assets;
-	type Nfts = Nfts;
-	type PalletId = NftFractionalizationPalletId;
-	type NewAssetSymbol = NewAssetSymbol;
-	type NewAssetName = NewAssetName;
-	type StringLimit = StringLimit;
+	type NftCollectionId = <Self as pallet_nfts::Config>::CollectionId; // the collection of NFT.
+	type NftId = <Self as pallet_nfts::Config>::ItemId; //  identify an NFT within a collection
+	type AssetBalance = <Self as pallet_balances::Config>::Balance; // amount of fractions converted into assets
+	type AssetId = <Self as pallet_assets::Config>::AssetId; // assets created during fractionalization
+	type Assets = Assets; // Registry for the minted assets
+	type Nfts = Nfts; // Registry for minted NFTs.
+	type PalletId = NftFractionalizationPalletId; //  sovereign account ID.
+	type NewAssetSymbol = NewAssetSymbol; // newly created asset's symbol
+	type NewAssetName = NewAssetName; // newly created asset's name
+	type StringLimit = StringLimit; // The maximum length of a name - onchain
 	#[cfg(feature = "runtime-benchmarks")]
 	type BenchmarkHelper = ();
 	type WeightInfo = ();
@@ -425,8 +429,8 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Assets: pallet_assets,
 		Sudo: pallet_sudo,
-		Nfts: pallet_nfts,
-		NftFractionalization: pallet_nft_fractionalization,
+		Nfts: pallet_nfts::{Pallet, Call, Storage, Event<T>} = 52,
+		NftFractionalization: pallet_nft_fractionalization::{Pallet, Call, Storage, Event<T>} = 54,
 	}
 );
 
